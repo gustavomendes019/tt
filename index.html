@@ -1,0 +1,438 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Operation Zero - FPS campanha caverna, puro HTML CSS JavaScript.">
+  <title>OPERATION ZERO — FPS Campanha</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Teko:wght@600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+    <div id="damageVignette" class="vignette"></div>
+    <div id="muzzleFlashFx" class="muzzle-flash-overlay"></div>
+    <div id="crosshairContainer" class="crosshair-fixed">
+      <div id="crosshair" class="crosshair-mark">
+        <span class="ch-line ch-top"></span>
+        <span class="ch-line ch-bottom"></span>
+        <span class="ch-line ch-left"></span>
+        <span class="ch-line ch-right"></span>
+        <span class="ch-center-dot"></span>
+      </div>
+      <div id="hitmarker" class="hitmarker hidden">
+        <span class="hm-blade hm-tl"></span>
+        <span class="hm-blade hm-tr"></span>
+        <span class="hm-blade hm-bl"></span>
+        <span class="hm-blade hm-br"></span>
+      </div>
+    </div>
+    <div id="hud" class="hud-container hidden">
+      <header class="hud-top">
+        <div class="hud-card objective-card">
+          <span class="hud-label">OBJETIVO</span>
+          <span id="objectiveText" class="hud-objective-text">Explore a mina</span>
+        </div>
+        <div class="hud-top-center">
+          <div id="fpsDisplay" class="fps-display hidden">60 FPS</div>
+          <div id="missionTimer" class="mission-timer">00:00</div>
+        </div>
+        <div class="minimap-wrapper">
+          <canvas id="minimapCanvas" width="124" height="124"></canvas>
+          <span class="minimap-tag">MAPA TATICO</span>
+        </div>
+      </header>
+      <div id="reloadIndicator" class="reload-banner hidden">
+        <div class="reload-wheel"></div>
+        <span>RECARREGANDO...</span>
+      </div>
+      <div id="hudNotice" class="hud-notice hidden"></div>
+      <div id="objectiveUpdateBanner" class="objective-update hidden">
+        <div class="obj-update-icon">!</div>
+        <div>
+          <div class="obj-update-title">OBJETIVO ATUALIZADO</div>
+          <div id="objectiveUpdateText" class="obj-update-desc"></div>
+        </div>
+      </div>
+      <div id="interactPrompt" class="interact-prompt hidden">
+        <span class="interact-key">[E]</span>
+        <span id="interactText">INTERAGIR</span>
+      </div>
+      <footer class="hud-bottom">
+        <div class="hud-bottom-left">
+          <div class="hud-card health-card">
+            <div class="health-header">
+              <span class="hud-label">VIDA</span>
+              <span id="healthNumber" class="health-percentage">100</span>
+            </div>
+            <div class="health-track">
+              <div id="healthBarFill" class="health-fill" style="width:100%"></div>
+            </div>
+          </div>
+          <div class="hud-card stamina-card">
+            <div class="health-header">
+              <span class="hud-label">STAMINA</span>
+              <span id="staminaNumber" class="stamina-percentage">100</span>
+            </div>
+            <div class="health-track stamina-track">
+              <div id="staminaBarFill" class="stamina-fill" style="width:100%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="hud-bottom-right">
+          <div class="weapon-slots" id="weaponSlots"></div>
+          <div class="hud-card ammo-card">
+            <div class="ammo-header">
+              <span id="currentWeaponName" class="hud-label">GLOCK</span>
+              <div class="ammo-digits">
+                <span id="currentAmmo" class="ammo-now">15</span>
+                <span class="ammo-separator">/</span>
+                <span id="reserveAmmo" class="ammo-total">60</span>
+              </div>
+            </div>
+            <div id="bulletPips" class="bullet-pips"></div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <div id="lockPrompt" class="lock-prompt hidden">
+      <div class="lock-box">
+        <div class="lock-icon">🎯</div>
+        <h3>MIRA PAUSADA</h3>
+        <p>Clique para travar o mouse e continuar</p>
+      </div>
+    </div>
+    <!-- LOBBY -->
+    <section id="lobbyScreen" class="overlay-screen active">
+      <div class="lobby-bg-particles" id="lobbyParticles"></div>
+      <div class="lobby-content">
+        <div class="lobby-badge">MISSAO DE CAMPANHA - FPS</div>
+        <h1 class="lobby-title">OPERATION <span class="text-accent">ZERO</span></h1>
+        <p class="lobby-subtitle">A operacao saiu do controle. Voce esta sozinho.</p>
+        <nav class="lobby-menu">
+          <button id="btnLobbyPlay" class="lobby-btn lobby-btn-primary" type="button">
+            <span class="lobby-btn-icon">&#9654;</span><span>JOGAR</span>
+          </button>
+          <button id="btnLobbySettings" class="lobby-btn lobby-btn-secondary" type="button">
+            <span class="lobby-btn-icon">&#9881;</span><span>CONFIGURACOES</span>
+          </button>
+          <button id="btnLobbyQuit" class="lobby-btn lobby-btn-danger" type="button">
+            <span class="lobby-btn-icon">&#10005;</span><span>SAIR DO JOGO</span>
+          </button>
+        </nav>
+        <div class="lobby-controls-hint">
+          <span class="ctrl-hint"><span class="kbd">WASD</span> Mover</span>
+          <span class="ctrl-hint"><span class="kbd">MOUSE</span> Mirar</span>
+          <span class="ctrl-hint"><span class="kbd">LMB</span> Atirar</span>
+          <span class="ctrl-hint"><span class="kbd">R</span> Recarregar</span>
+          <span class="ctrl-hint"><span class="kbd">SHIFT</span> Correr</span>
+          <span class="ctrl-hint"><span class="kbd">CTRL</span> Agachar</span>
+          <span class="ctrl-hint"><span class="kbd">E</span> Interagir</span>
+          <span class="ctrl-hint"><span class="kbd">ESC</span> Pausar</span>
+        </div>
+      </div>
+    </section>
+    <!-- CHAR SELECT -->
+    <section id="charSelectScreen" class="overlay-screen hidden">
+      <div class="flow-modal">
+        <div class="flow-step-indicator">
+          <div class="step active">1</div><div class="step-line"></div>
+          <div class="step">2</div><div class="step-line"></div>
+          <div class="step">3</div>
+        </div>
+        <h2 class="flow-title">ESCOLHA SEU <span class="text-accent">PERSONAGEM</span></h2>
+        <p class="flow-desc">Selecione o agente que ira conduzir a missao.</p>
+        <div class="char-cards" id="charCards">
+          <div class="char-card" id="charCardMale" data-char="male">
+            <div class="char-preview"><canvas id="charPreviewMale" width="120" height="180"></canvas></div>
+            <div class="char-info">
+              <div class="char-name">AGENTE MARCUS</div>
+              <div class="char-desc">Experiente em combate urbano e infiltracao.</div>
+              <div class="char-tags"><span class="char-tag">HOMEM</span><span class="char-tag">FORCA</span></div>
+            </div>
+            <button class="char-select-btn" data-char="male">SELECIONAR</button>
+          </div>
+          <div class="char-card" id="charCardFemale" data-char="female">
+            <div class="char-preview"><canvas id="charPreviewFemale" width="120" height="180"></canvas></div>
+            <div class="char-info">
+              <div class="char-name">AGENTE SARA</div>
+              <div class="char-desc">Especialista em operacoes furtivas e precisao.</div>
+              <div class="char-tags"><span class="char-tag">MULHER</span><span class="char-tag">PRECISAO</span></div>
+            </div>
+            <button class="char-select-btn" data-char="female">SELECIONAR</button>
+          </div>
+        </div>
+        <div class="flow-buttons">
+          <button id="btnCharBack" class="action-btn secondary" type="button">VOLTAR</button>
+          <button id="btnCharContinue" class="action-btn" type="button" disabled>CONTINUAR</button>
+        </div>
+      </div>
+    </section>
+    <!-- DIFFICULTY -->
+    <section id="difficultyScreen" class="overlay-screen hidden">
+      <div class="flow-modal wide">
+        <div class="flow-step-indicator">
+          <div class="step done">&#10003;</div><div class="step-line active"></div>
+          <div class="step active">2</div><div class="step-line"></div>
+          <div class="step">3</div>
+        </div>
+        <h2 class="flow-title">ESCOLHA A <span class="text-accent">DIFICULDADE</span></h2>
+        <div class="diff-cards" id="diffCards">
+          <div class="diff-card" data-diff="easy">
+            <div class="diff-icon" style="color:#22c55e">&#9679;</div>
+            <div class="diff-name">FACIL</div>
+            <ul class="diff-stats"><li>Menos vida inimigos</li><li>Dano reduzido</li><li>Menor precisao</li><li>Menos inimigos</li></ul>
+          </div>
+          <div class="diff-card" data-diff="normal">
+            <div class="diff-icon" style="color:#facc15">&#9670;</div>
+            <div class="diff-name">NORMAL</div>
+            <ul class="diff-stats"><li>Dificuldade equilibrada</li><li>Padrao recomendado</li><li>IA balanceada</li><li>Combate justo</li></ul>
+          </div>
+          <div class="diff-card" data-diff="hard">
+            <div class="diff-icon" style="color:#f97316">&#9650;</div>
+            <div class="diff-name">DIFICIL</div>
+            <ul class="diff-stats"><li>Mais vida inimigos</li><li>Dano alto</li><li>Deteccao rapida</li><li>Mais inimigos</li></ul>
+          </div>
+          <div class="diff-card" data-diff="veryhard">
+            <div class="diff-icon" style="color:#ef4444">&#9733;</div>
+            <div class="diff-name">MUITO DIFICIL</div>
+            <ul class="diff-stats"><li>Inimigos fortissimos</li><li>Dano critico</li><li>Alta precisao</li><li>Margem minima erro</li></ul>
+          </div>
+        </div>
+        <div class="flow-buttons">
+          <button id="btnDiffBack" class="action-btn secondary" type="button">VOLTAR</button>
+          <button id="btnDiffContinue" class="action-btn" type="button" disabled>CONTINUAR</button>
+        </div>
+      </div>
+    </section>
+    <!-- WEAPON SELECT -->
+    <section id="weaponSelectScreen" class="overlay-screen hidden">
+      <div class="flow-modal wide">
+        <div class="flow-step-indicator">
+          <div class="step done">&#10003;</div><div class="step-line active"></div>
+          <div class="step done">&#10003;</div><div class="step-line active"></div>
+          <div class="step active">3</div>
+        </div>
+        <h2 class="flow-title">ESCOLHA SUA <span class="text-accent">ARMA INICIAL</span></h2>
+        <div class="weapon-select-cards" id="weaponSelectCards">
+          <div class="weapon-sel-card" data-weapon="glock">
+            <div class="weapon-sel-icon"><canvas id="weaponPreviewGlock" width="160" height="80"></canvas></div>
+            <div class="weapon-sel-name">GLOCK 17</div>
+            <div class="weapon-sel-tag">Equilibrada</div>
+            <div class="weapon-stats-grid">
+              <div class="ws-stat"><span>DANO</span><div class="ws-bar"><div class="ws-fill" style="width:45%"></div></div></div>
+              <div class="ws-stat"><span>PENTE</span><div class="ws-bar"><div class="ws-fill" style="width:75%"></div></div></div>
+              <div class="ws-stat"><span>CADENCIA</span><div class="ws-bar"><div class="ws-fill" style="width:70%"></div></div></div>
+              <div class="ws-stat"><span>RECUO</span><div class="ws-bar"><div class="ws-fill" style="width:25%"></div></div></div>
+              <div class="ws-stat"><span>PRECISAO</span><div class="ws-bar"><div class="ws-fill" style="width:72%"></div></div></div>
+            </div>
+            <button class="weapon-sel-btn" data-weapon="glock">SELECIONAR</button>
+          </div>
+          <div class="weapon-sel-card" data-weapon="deagle">
+            <div class="weapon-sel-icon"><canvas id="weaponPreviewDeagle" width="160" height="80"></canvas></div>
+            <div class="weapon-sel-name">DESERT EAGLE</div>
+            <div class="weapon-sel-tag">Alto Dano</div>
+            <div class="weapon-stats-grid">
+              <div class="ws-stat"><span>DANO</span><div class="ws-bar"><div class="ws-fill" style="width:95%"></div></div></div>
+              <div class="ws-stat"><span>PENTE</span><div class="ws-bar"><div class="ws-fill" style="width:22%"></div></div></div>
+              <div class="ws-stat"><span>CADENCIA</span><div class="ws-bar"><div class="ws-fill" style="width:30%"></div></div></div>
+              <div class="ws-stat"><span>RECUO</span><div class="ws-bar"><div class="ws-fill" style="width:92%"></div></div></div>
+              <div class="ws-stat"><span>PRECISAO</span><div class="ws-bar"><div class="ws-fill" style="width:85%"></div></div></div>
+            </div>
+            <button class="weapon-sel-btn" data-weapon="deagle">SELECIONAR</button>
+          </div>
+          <div class="weapon-sel-card" data-weapon="silenced">
+            <div class="weapon-sel-icon"><canvas id="weaponPreviewSilenced" width="160" height="80"></canvas></div>
+            <div class="weapon-sel-name">PISTOLA SILENCIADA</div>
+            <div class="weapon-sel-tag">Furtiva</div>
+            <div class="weapon-stats-grid">
+              <div class="ws-stat"><span>DANO</span><div class="ws-bar"><div class="ws-fill" style="width:38%"></div></div></div>
+              <div class="ws-stat"><span>PENTE</span><div class="ws-bar"><div class="ws-fill" style="width:62%"></div></div></div>
+              <div class="ws-stat"><span>CADENCIA</span><div class="ws-bar"><div class="ws-fill" style="width:60%"></div></div></div>
+              <div class="ws-stat"><span>RECUO</span><div class="ws-bar"><div class="ws-fill" style="width:15%"></div></div></div>
+              <div class="ws-stat"><span>PRECISAO</span><div class="ws-bar"><div class="ws-fill" style="width:80%"></div></div></div>
+            </div>
+            <button class="weapon-sel-btn" data-weapon="silenced">SELECIONAR</button>
+          </div>
+        </div>
+        <div class="flow-buttons">
+          <button id="btnWeaponBack" class="action-btn secondary" type="button">VOLTAR</button>
+          <button id="btnWeaponContinue" class="action-btn" type="button" disabled>INICIAR MISSAO</button>
+        </div>
+      </div>
+    </section>
+    <!-- STORY -->
+    <section id="storyScreen" class="overlay-screen hidden">
+      <div class="story-container">
+        <div id="storyText" class="story-text"></div>
+        <div id="storyMissionTitle" class="story-mission hidden">
+          MISSAO 01 - <span class="text-accent">A SAIDA</span>
+        </div>
+        <button id="btnSkipStory" class="story-skip">PULAR</button>
+      </div>
+    </section>
+    <!-- LOADING -->
+    <section id="loadingScreen" class="overlay-screen hidden">
+      <div class="loading-content">
+        <div class="loading-mission-name">MISSAO 01 - A SAIDA</div>
+        <div class="loading-spinner-ring">
+          <div class="loading-ring"></div>
+          <div class="loading-skull">&#11041;</div>
+        </div>
+        <div class="loading-status" id="loadingStatus">Preparando missao...</div>
+        <div class="loading-bar-track">
+          <div id="loadingBarFill" class="loading-bar-fill"></div>
+        </div>
+        <div class="loading-tip" id="loadingTip">Explore cada corredor. A saida pode estar mais longe do que parece.</div>
+      </div>
+    </section>
+    <!-- PAUSE -->
+    <section id="pauseScreen" class="overlay-screen hidden">
+      <div class="pause-modal">
+        <div class="pause-tag">PAUSADO</div>
+        <h2 class="pause-title">JOGO PAUSADO</h2>
+        <div class="pause-menu">
+          <button id="btnResume" class="pause-btn" type="button">CONTINUAR</button>
+          <button id="btnPauseSettings" class="pause-btn secondary" type="button">CONFIGURACOES</button>
+          <button id="btnPauseRestart" class="pause-btn secondary" type="button">REINICIAR MISSAO</button>
+          <button id="btnPauseMainMenu" class="pause-btn danger" type="button">MENU PRINCIPAL</button>
+        </div>
+        <div class="pause-controls">
+          <div class="pause-controls-title">CONTROLES</div>
+          <div class="pause-ctrl-grid">
+            <span class="p-kbd">W A S D</span><span>Mover</span>
+            <span class="p-kbd">MOUSE</span><span>Mirar</span>
+            <span class="p-kbd">LMB</span><span>Atirar</span>
+            <span class="p-kbd">R</span><span>Recarregar</span>
+            <span class="p-kbd">SHIFT</span><span>Correr</span>
+            <span class="p-kbd">CTRL</span><span>Agachar</span>
+            <span class="p-kbd">SPACE</span><span>Pular</span>
+            <span class="p-kbd">E</span><span>Interagir</span>
+            <span class="p-kbd">1 / 2</span><span>Trocar arma</span>
+            <span class="p-kbd">ESC</span><span>Pausar</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- GAME OVER -->
+    <section id="gameOverScreen" class="overlay-screen hidden">
+      <div class="result-modal fail-modal">
+        <div class="result-tag fail-tag">MISSAO FALHOU</div>
+        <h2 class="result-title fail-title">ELIMINADO</h2>
+        <p class="result-desc">Voce foi abatido em combate. A missao nao foi concluida.</p>
+        <div class="result-stats" id="failStats"></div>
+        <div class="result-buttons">
+          <button id="btnRetry" class="action-btn fail-btn" type="button">TENTAR NOVAMENTE</button>
+          <button id="btnFailMenu" class="action-btn secondary" type="button">MENU PRINCIPAL</button>
+        </div>
+      </div>
+    </section>
+    <!-- NEW WEAPON -->
+    <section id="newWeaponScreen" class="overlay-screen hidden">
+      <div class="new-weapon-modal">
+        <div class="nw-badge">NOVA ARMA DESBLOQUEADA</div>
+        <canvas id="newWeaponPreview" width="280" height="130"></canvas>
+        <div class="nw-name">M4A1</div>
+        <div class="nw-desc">Rifle de assalto de alta cadencia com pente de 30 balas. Encontrado no bau da mina.</div>
+        <div class="nw-stats">
+          <div class="nw-stat-row"><span>DANO</span><div class="ws-bar"><div class="ws-fill" style="width:72%"></div></div></div>
+          <div class="nw-stat-row"><span>PENTE</span><div class="ws-bar"><div class="ws-fill" style="width:100%"></div></div></div>
+          <div class="nw-stat-row"><span>CADENCIA</span><div class="ws-bar"><div class="ws-fill" style="width:90%"></div></div></div>
+          <div class="nw-stat-row"><span>RECUO</span><div class="ws-bar"><div class="ws-fill" style="width:55%"></div></div></div>
+        </div>
+        <button id="btnEquipM4" class="action-btn" type="button">EQUIPAR M4</button>
+      </div>
+    </section>
+    <!-- MISSION COMPLETE -->
+    <section id="missionCompleteScreen" class="overlay-screen hidden">
+      <div class="result-modal win-modal">
+        <div class="result-tag win-tag">MISSAO CONCLUIDA</div>
+        <h2 class="result-title win-title">SAIDA ENCONTRADA</h2>
+        <p class="result-desc">Voce escapou da mina. A operacao continua.</p>
+        <div class="result-stats" id="winStats"></div>
+        <div class="result-buttons">
+          <button id="btnMissionContinue" class="action-btn" type="button">CONTINUAR</button>
+          <button id="btnWinMenu" class="action-btn secondary" type="button">MENU PRINCIPAL</button>
+        </div>
+      </div>
+    </section>
+    <!-- SETTINGS -->
+    <section id="settingsScreen" class="overlay-screen hidden">
+      <div class="settings-modal">
+        <h2 class="settings-title">CONFIGURACOES</h2>
+        <div class="settings-grid">
+          <div class="setting-group">
+            <label class="setting-label">Volume Geral</label>
+            <div class="setting-row">
+              <input type="range" id="settingMasterVol" class="setting-slider" min="0" max="100" value="85">
+              <span id="settingMasterVolVal" class="setting-val">85%</span>
+            </div>
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">Volume dos Efeitos</label>
+            <div class="setting-row">
+              <input type="range" id="settingFxVol" class="setting-slider" min="0" max="100" value="80">
+              <span id="settingFxVolVal" class="setting-val">80%</span>
+            </div>
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">Volume da Musica</label>
+            <div class="setting-row">
+              <input type="range" id="settingMusicVol" class="setting-slider" min="0" max="100" value="60">
+              <span id="settingMusicVolVal" class="setting-val">60%</span>
+            </div>
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">Sensibilidade do Mouse</label>
+            <div class="setting-row">
+              <input type="range" id="settingSensitivity" class="setting-slider" min="1" max="10" value="5">
+              <span id="settingSensitivityVal" class="setting-val">5</span>
+            </div>
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">Qualidade Grafica</label>
+            <div class="setting-row">
+              <div class="quality-btns" id="qualityBtns">
+                <button class="quality-btn" data-q="low">BAIXA</button>
+                <button class="quality-btn active" data-q="medium">MEDIA</button>
+                <button class="quality-btn" data-q="high">ALTA</button>
+              </div>
+            </div>
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">Mostrar FPS</label>
+            <div class="setting-row">
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingShowFPS">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">Mostrar Mira</label>
+            <div class="setting-row">
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingCrosshair" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">Tela Cheia</label>
+            <div class="setting-row">
+              <button id="btnFullscreen" class="action-btn secondary small-btn" type="button">TELA CHEIA</button>
+            </div>
+          </div>
+        </div>
+        <div class="settings-footer">
+          <button id="btnSettingsSave" class="action-btn" type="button">SALVAR E FECHAR</button>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
