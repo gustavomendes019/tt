@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -83,6 +83,9 @@
           </div>
         </div>
         <div class="hud-bottom-right">
+          <div class="hud-utility-bar">
+            <div id="flashlightHudTag" class="flashlight-hud-tag"><span class="fl-bullet">&#11044;</span> LANTERNA: <span id="flashlightStatusText">OFF</span> <span class="fl-key">[L]</span></div>
+          </div>
           <div class="weapon-slots" id="weaponSlots"></div>
           <div class="hud-card ammo-card">
             <div class="ammo-header">
@@ -126,11 +129,15 @@
         <div class="lobby-controls-hint">
           <span class="ctrl-hint"><span class="kbd">WASD</span> Mover</span>
           <span class="ctrl-hint"><span class="kbd">MOUSE</span> Mirar</span>
-          <span class="ctrl-hint"><span class="kbd">LMB</span> Atirar</span>
+          <span class="ctrl-hint"><span class="kbd">LMB</span> Atirar / Cortar</span>
           <span class="ctrl-hint"><span class="kbd">R</span> Recarregar</span>
           <span class="ctrl-hint"><span class="kbd">SHIFT</span> Correr</span>
           <span class="ctrl-hint"><span class="kbd">CTRL</span> Agachar</span>
+          <span class="ctrl-hint"><span class="kbd">SPACE</span> Pular</span>
           <span class="ctrl-hint"><span class="kbd">E</span> Interagir</span>
+          <span class="ctrl-hint"><span class="kbd">1 / 2 / 3</span> Armas / Faca</span>
+          <span class="ctrl-hint"><span class="kbd">L</span> Lanterna</span>
+          <span class="ctrl-hint"><span class="kbd">Y</span> Inspecionar Faca</span>
           <span class="ctrl-hint"><span class="kbd">ESC</span> Pausar</span>
         </div>
       </div>
@@ -147,19 +154,19 @@
         <p class="flow-desc">Selecione o agente que ira conduzir a missao.</p>
         <div class="char-cards" id="charCards">
           <div class="char-card" id="charCardMale" data-char="male">
-            <div class="char-preview"><canvas id="charPreviewMale" width="120" height="180"></canvas></div>
+            <div class="char-preview"><img src="assets/characters/marcus.png" alt="Agente Marcus" class="char-portrait-img"></div>
             <div class="char-info">
               <div class="char-name">AGENTE MARCUS</div>
-              <div class="char-desc">Experiente em combate urbano e infiltracao.</div>
+              <div class="char-desc">Operador tático veterano, combate urbano e infiltração de alto risco.</div>
               <div class="char-tags"><span class="char-tag">HOMEM</span><span class="char-tag">FORCA</span></div>
             </div>
             <button class="char-select-btn" data-char="male">SELECIONAR</button>
           </div>
           <div class="char-card" id="charCardFemale" data-char="female">
-            <div class="char-preview"><canvas id="charPreviewFemale" width="120" height="180"></canvas></div>
+            <div class="char-preview"><img src="assets/characters/sara.png" alt="Agente Sara" class="char-portrait-img"></div>
             <div class="char-info">
               <div class="char-name">AGENTE SARA</div>
-              <div class="char-desc">Especialista em operacoes furtivas e precisao.</div>
+              <div class="char-desc">Especialista em operações noturnas, precisão milimétrica e silêncio.</div>
               <div class="char-tags"><span class="char-tag">MULHER</span><span class="char-tag">PRECISAO</span></div>
             </div>
             <button class="char-select-btn" data-char="female">SELECIONAR</button>
@@ -305,13 +312,15 @@
           <div class="pause-ctrl-grid">
             <span class="p-kbd">W A S D</span><span>Mover</span>
             <span class="p-kbd">MOUSE</span><span>Mirar</span>
-            <span class="p-kbd">LMB</span><span>Atirar</span>
+            <span class="p-kbd">LMB</span><span>Atirar / Cortar</span>
             <span class="p-kbd">R</span><span>Recarregar</span>
             <span class="p-kbd">SHIFT</span><span>Correr</span>
             <span class="p-kbd">CTRL</span><span>Agachar</span>
             <span class="p-kbd">SPACE</span><span>Pular</span>
             <span class="p-kbd">E</span><span>Interagir</span>
-            <span class="p-kbd">1 / 2</span><span>Trocar arma</span>
+            <span class="p-kbd">1 / 2 / 3</span><span>Trocar arma / Faca</span>
+            <span class="p-kbd">L</span><span>Ligar / Desligar Lanterna</span>
+            <span class="p-kbd">Y</span><span>Inspecionar / Girar Faca</span>
             <span class="p-kbd">ESC</span><span>Pausar</span>
           </div>
         </div>
